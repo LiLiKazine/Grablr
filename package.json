@@ -1,0 +1,12 @@
+{
+  "name": "Grablr",
+  "version": "0.0.1",
+  "main": "app.js",
+  "description": "grab things from tumblr",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.15.4",
+    "superagent": "^3.6.0"
+  }
+}
