@@ -3,9 +3,14 @@
   "version": "0.0.1",
   "main": "app.js",
   "description": "grab things from tumblr",
+  "repository": "https://github.com/LiLiKazine/Grablr.git",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.5.0",
+    "bluebird": "^3.5.0",
     "cheerio": "^1.0.0-rc.2",
+    "co": "^4.6.0",
+    "eventproxy": "^1.0.0",
     "express": "^4.15.4",
     "superagent": "^3.6.0"
   }
