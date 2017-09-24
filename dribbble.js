@@ -12,6 +12,8 @@ const superagent = require('superagent');
 const cheerio = require('cheerio');
 const app = express();
 const asyncEvent = require('async');
+const download = require('download');
+const fs = require('fs');
 
 
 let fetchItemUrls = (url) => {
@@ -104,11 +106,13 @@ let fetchAttachment = (attachmentUrls) => {
         if (attachmentUrls[item].hasOwnProperty('origin')) {
             origin.push(attachmentUrls[item].origin);
         }else {
-            display.push(attachmentUrls[item].display);
+            let temp = {
+                'url': attachmentUrls[item].display[1],
+                'name': attachmentUrls[item].display[0]
+            };
+            display.push(temp);
         }
     }
-
-
     return new Promise((resolve, reject) => {
         let action = (url, callback) => {
             if (url) {
@@ -157,9 +161,33 @@ let fetchAttachment = (attachmentUrls) => {
         // console.log(attachmentUrls);
         let files = await fetchAttachment(attachmentUrls);
         console.log(files);
+
+        let origin = files[0];
+        let display = files[1];
+
+        let originUrls = () => {
+            let urls = [];
+            origin.forEach((ele) => {
+                urls.push(ele.url);
+            });
+            return urls;
+        };
+
+        let displayUrls = () => {
+            let urls = [];
+            display.forEach((ele) => {
+                urls.push(ele.url);
+            });
+            return urls;
+        };
+
+        Promise.all(displayUrls().map(x => download(x, 'dist'))).then(() => {
+            console.log('files downloaded!');
+        });
+
     }
     catch (err) {
-        console.log(err.message);
+        console.error(err.message);
     }
 })();
 
