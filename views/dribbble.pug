@@ -1,0 +1,39 @@
+html(lang="en")
+    head
+        title=name
+        script.
+            function act() {
+                let url = document.getElementById('url');
+                let xmlhttp;
+                if (window.XMLHttpRequest) {
+                    xmlhttp = new XMLHttpRequest();
+                }
+                else {
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+
+                xmlhttp.onreadystatechange = function () {
+                    if (request.readyState === 4) {
+                        if (request.status === 200) {
+                            return success(request.responseText);
+                        } else {
+                            return fail(request.status);
+                        }
+                    } else {
+                    }
+                };
+                let params = 'url=' + url.value;
+
+                xmlhttp.open("post", "/", true);
+                xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xmlhttp.send(params);
+            }
+    body
+
+        form(id='login', method='post')
+            h3 Grab From Dribbble
+            p(style='margin-top:20px;')   #{error}
+            fieldset(id='inputs')
+                input(id='url', name='url', type='text', placeholder='url', autofocus='', required='')
+                input(type='submit', id='submit', value='go', onclick='act()')
+

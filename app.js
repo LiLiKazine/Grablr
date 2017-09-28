@@ -8,91 +8,32 @@
  **/
 
 const express = require('express');
-const superagent = require('superagent');
-const cheerio = require('cheerio');
 const app = express();
+const path = require('path');
+const bodyParser = require('body-parser');
 
+const dribbblr = require('./modules/dribbble');
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
 app.get('/', function (req, res, next) {
-    superagent.get('https://dribbble.com/shots/')
-        .end(function (err, sres) {
-            if (err) {
-                return next(err);
-            }
-
-            let path = '.dribbble-link';
-
-            let originUrls = fetchOriginUrl(path, sres.text);
-            for (let idx in originUrls) {
-                if (!originUrls.hasOwnProperty(idx)) {
-                    continue;
-                }
-                superagent.get(originUrls[idx])
-                    .end((err, sres) => {
-                        if (err) {
-                            return next(err);
-                        }
-                        let path = 'ul.thumbs li a';
-                        let attachmentUrls = fetchAttachmentUrl(path, sres.text);
-                        for (let idx in attachmentUrls) {
-                            if (!attachmentUrls.hasOwnProperty(idx)) {
-                                continue;
-                            }
-                            superagent.get(attachmentUrls[idx])
-                                .end((err, sres) => {
-                                    if (err) {
-                                        return next(err);
-                                    }
-                                    let path = '#viewer-img img';
-
-                                    let props = fetchAttachment(path, sres.text);
-                                    console.log(props);
-                                })
-                        }
-                    })
-            }
-        });
+    dribbblr.
+    res.render('dribbble', {name:'hahaha'});
 });
 
-let fetchAttachment = function (path, html) {
-    let files = [];
-
-    let $ = cheerio.load(html);
-    $(path).each((i, ele) => {
-        $element = $(ele);
-        let url = $element.attr('src');
-        let name = $element.attr('alt');
-        files.push({
-            'url': url,
-            'name': name
-        });
-    });
-    return files;
-};
-
-let fetchAttachmentUrl = function (path, html) {
-    let attachmentUrls = [];
-    let $ = cheerio.load(html);
-
-    $(path).each((i, ele) => {
-        let $element = $(ele);
-        let url = 'https://dribbble.com' + $element.attr('href');
-        attachmentUrls.push(url);
-    });
-    return attachmentUrls;
-};
+app.post('/', function (req, res, next) {
+    console.log(req.body.url);
+    res.render('dribbble', {name:'post'});
+});
 
 
-let fetchOriginUrl = function (path, html) {
-    let urls = [];
-    let $ = cheerio.load(html);
-    $(path).each((idx, ele) => {
-        let $element = $(ele);
-        let url = 'https://dribbble.com' + $element.attr('href');
-        urls.push(url);
-    });
-    return urls;
-};
+app.post('/process', function (req, res, next) {
+    res.render('dribbble', {name: 'Wait for Result'});
+});
 
 app.use(function (err) {
     console.log(err.message);
