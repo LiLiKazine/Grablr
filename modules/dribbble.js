@@ -16,7 +16,7 @@ const download = require('download');
 const fsutils = require('./FSUtils');
 const path = require('path');
 const fs = require('fs');
-
+const progressbar = require('./progress-bar');
 
 let fetchItemUrls = (url) => {
     return new Promise((resolve, reject) => {
@@ -207,18 +207,20 @@ async function beginFetchOnlyAttachment(url) {
                         req.pipe(stream);
                     });
                     stream.on('pipe', (write) => {
-                        console.log('pipe');
                         let size = 0;
                         let lastResponseTime = Date.now();
                         let fileSize = write.headers['content-length'];
+                        let pb = new progressbar(name, 50);
+
+
                         let timerId = setInterval(() => {
-
-                            console.log(`文件大小:${fileSize}, 已下载:${size}`);  // 打印当前下载进度
-
-                            if ((Date.now() - lastResponseTime) > 10 * 1000) {
-                                throw Error('download timeout!');
+                            if (size<=fileSize) {
+                                pb.render({completed: size, total: fileSize});
                             }
-                        }, 5 * 1000);
+                            if ((Date.now() - lastResponseTime) > 10 * 1000) {
+                                throw Error(`download ${name} timeout!`);
+                            }
+                        }, 500);
 
                         write.on('data', (data) => {
                             size += data.length;
@@ -226,7 +228,7 @@ async function beginFetchOnlyAttachment(url) {
                         });
 
                         write.on('end', () => {
-                            console.log('download end!');
+                            console.log(`${name} downloaded.`);
                             // 下载完成后清除interval
                             clearInterval(timerId);
                         });
